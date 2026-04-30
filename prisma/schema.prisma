@@ -1,0 +1,323 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskStatus {
+  inbox
+  a_fazer
+  fazendo
+  aguardando
+  concluida
+  cancelada
+}
+
+enum TaskPriority {
+  baixa
+  media
+  alta
+  urgente
+}
+
+enum EnergyLevel {
+  baixo
+  medio
+  alto
+}
+
+enum ProjectStatus {
+  ativo
+  pausado
+  concluido
+  cancelado
+}
+
+enum HabitFrequency {
+  diaria
+  semanal
+}
+
+enum GoalCategory {
+  saude
+  carreira
+  estudos
+  financeiro
+  pessoal
+  outro
+}
+
+enum GoalStatus {
+  em_andamento
+  concluida
+  pausada
+  cancelada
+}
+
+enum FocusStatus {
+  concluida
+  interrompida
+}
+
+enum InboxItemType {
+  tarefa
+  ideia
+  lembrete
+  anotacao
+}
+
+enum InboxStatus {
+  aberta
+  processada
+  descartada
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String         @unique
+  passwordHash  String         @map("password_hash")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  tasks         Task[]
+  projects      Project[]
+  tags          Tag[]
+  habits        Habit[]
+  habitLogs     HabitLog[]
+  goals         Goal[]
+  focusSessions FocusSession[]
+  notes         Note[]
+  dailyPlans    DailyPlan[]
+  weeklyReviews WeeklyReview[]
+  inboxItems    InboxItem[]
+
+  @@map("users")
+}
+
+model Task {
+  id               String          @id @default(cuid())
+  userId           String          @map("user_id")
+  projectId        String?         @map("project_id")
+  title            String
+  description      String?         @db.Text
+  status           TaskStatus      @default(inbox)
+  priority         TaskPriority    @default(media)
+  dueDate          DateTime?       @map("due_date")
+  completedAt      DateTime?       @map("completed_at")
+  energy           EnergyLevel     @default(medio)
+  estimatedMinutes Int?            @map("estimated_minutes")
+  isImportant      Boolean         @default(false) @map("is_important")
+  isUrgent         Boolean         @default(false) @map("is_urgent")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project          Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  tags             TaskTag[]
+  goals            GoalTask[]
+  dailyPlans       DailyPlanTask[]
+  focusSessions    FocusSession[]
+
+  @@index([userId, status])
+  @@index([userId, dueDate])
+  @@index([projectId])
+  @@map("tasks")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  name        String
+  description String?       @db.Text
+  status      ProjectStatus @default(ativo)
+  startDate   DateTime?     @map("start_date")
+  targetDate  DateTime?     @map("target_date")
+  color       String        @default("#2081c3")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+
+  @@index([userId, status])
+  @@map("projects")
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  name      String
+  color     String    @default("#1f9d72")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     TaskTag[]
+
+  @@unique([userId, name])
+  @@map("tags")
+}
+
+model TaskTag {
+  taskId String @map("task_id")
+  tagId  String @map("tag_id")
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+  @@map("task_tags")
+}
+
+model Habit {
+  id            String         @id @default(cuid())
+  userId        String         @map("user_id")
+  name          String
+  description   String?        @db.Text
+  frequency     HabitFrequency @default(diaria)
+  daysOfWeek    Json?          @map("days_of_week")
+  suggestedTime String?        @map("suggested_time")
+  isActive      Boolean        @default(true) @map("is_active")
+  streakCurrent Int            @default(0) @map("streak_current")
+  streakBest    Int            @default(0) @map("streak_best")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs          HabitLog[]
+
+  @@index([userId, isActive])
+  @@map("habits")
+}
+
+model HabitLog {
+  id        String   @id @default(cuid())
+  habitId   String   @map("habit_id")
+  userId    String   @map("user_id")
+  date      DateTime @db.Date
+  completed Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
+  @@index([userId, date])
+  @@map("habit_logs")
+}
+
+model Goal {
+  id          String       @id @default(cuid())
+  userId      String       @map("user_id")
+  title       String
+  description String?      @db.Text
+  category    GoalCategory @default(outro)
+  startDate   DateTime?    @map("start_date")
+  dueDate     DateTime?    @map("due_date")
+  progress    Int          @default(0)
+  status      GoalStatus   @default(em_andamento)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       GoalTask[]
+
+  @@index([userId, status])
+  @@map("goals")
+}
+
+model GoalTask {
+  goalId String @map("goal_id")
+  taskId String @map("task_id")
+  goal   Goal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@id([goalId, taskId])
+  @@map("goal_tasks")
+}
+
+model FocusSession {
+  id              String      @id @default(cuid())
+  userId          String      @map("user_id")
+  taskId          String?     @map("task_id")
+  startedAt       DateTime    @map("started_at")
+  endedAt         DateTime?   @map("ended_at")
+  durationMinutes Int         @map("duration_minutes")
+  status          FocusStatus
+  createdAt       DateTime    @default(now()) @map("created_at")
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task            Task?       @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startedAt])
+  @@index([taskId])
+  @@map("focus_sessions")
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  content   String   @db.Text
+  tags      Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+  @@map("notes")
+}
+
+model DailyPlan {
+  id         String          @id @default(cuid())
+  userId     String          @map("user_id")
+  date       DateTime        @db.Date
+  reflection String?         @db.Text
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks      DailyPlanTask[]
+
+  @@unique([userId, date])
+  @@map("daily_plans")
+}
+
+model DailyPlanTask {
+  dailyPlanId   String    @map("daily_plan_id")
+  taskId        String    @map("task_id")
+  isMainPriority Boolean  @default(false) @map("is_main_priority")
+  sortOrder     Int       @default(0) @map("sort_order")
+  dailyPlan     DailyPlan @relation(fields: [dailyPlanId], references: [id], onDelete: Cascade)
+  task          Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@id([dailyPlanId, taskId])
+  @@map("daily_plan_tasks")
+}
+
+model WeeklyReview {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  weekStart    DateTime @db.Date @map("week_start")
+  weekEnd      DateTime @db.Date @map("week_end")
+  weeklyGoals  String?  @db.Text @map("weekly_goals")
+  completed    String?  @db.Text
+  pending      String?  @db.Text
+  blockers     String?  @db.Text
+  improvements String?  @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStart])
+  @@map("weekly_reviews")
+}
+
+model InboxItem {
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  type        InboxItemType @default(tarefa)
+  title       String
+  content     String?       @db.Text
+  status      InboxStatus   @default(aberta)
+  processedAt DateTime?     @map("processed_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("inbox_items")
+}

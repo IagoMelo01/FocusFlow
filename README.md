@@ -1,120 +1,120 @@
 # FocusFlow
 
-FocusFlow e um sistema de produtividade pessoal em Next.js, Node.js, Prisma e MySQL. Ele combina GTD, Kanban pessoal, Matriz de Eisenhower, planejamento diario/semanal, controle de habitos, metas, notas e foco Pomodoro.
+FocusFlow is a personal productivity system built with Next.js, Node.js, Prisma, and MySQL. It combines methodologies such as GTD, personal Kanban, Eisenhower Matrix, daily/weekly planning, habit tracking, goals, notes, and Pomodoro-based focus sessions.
 
-## Stack
+## Tech Stack
 
-- Next.js App Router com TypeScript
-- APIs internas no Next.js
-- Prisma ORM com MySQL
+- Next.js (App Router) with TypeScript
+- Internal API routes with Next.js
+- Prisma ORM with MySQL
 - Tailwind CSS
-- Autenticacao local com bcrypt e JWT em cookie HTTP-only
-- Formularios com React Hook Form
-- Validacao com Zod
-- Graficos com Recharts
+- Local authentication using bcrypt and HTTP-only JWT cookies
+- Forms with React Hook Form
+- Validation with Zod
+- Charts with Recharts
 
-## Requisitos
+## Requirements
 
 - Node.js 20+
 - MySQL 8+
-- Docker opcional para subir MySQL usando `docker-compose.yml`
+- Docker (optional, for running MySQL via `docker-compose.yml`)
 
-## Configuracao
+## Setup
 
-1. Instale dependencias:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Configure ambiente:
+2. Configure environment variables:
 
 ```bash
 cp .env.example .env
 ```
 
-No Windows PowerShell:
+On Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-3. Suba o MySQL.
+3. Start MySQL
 
-Com Docker:
+Using Docker:
 
 ```bash
 docker compose up -d mysql
 ```
 
-Ou use um MySQL local com a URL:
+Or use a local MySQL instance:
 
 ```env
 DATABASE_URL="mysql://focusflow:focusflow@localhost:3306/focusflow"
 ```
 
-4. Aplique migrations:
+4. Run migrations:
 
 ```bash
 npx prisma migrate dev
 ```
 
-5. Rode o seed:
+5. Seed the database:
 
 ```bash
 npx prisma db seed
 ```
 
-6. Inicie em localhost:
+6. Start the application:
 
 ```bash
 npm run dev
 ```
 
-Acesse `http://localhost:3000`.
+Access the app at: http://localhost:3000
 
-## Usuario de teste
+## Test User
 
-- E-mail: `admin@focusflow.local`
-- Senha: `123456`
+- Email: admin@focusflow.local  
+- Password: 123456  
 
-## Funcionalidades
+## Features
 
-- Login e cadastro locais com dados isolados por usuario
-- Dashboard com tarefas de hoje, atrasadas, proximas, habitos, metas e estatisticas
-- CRUD de tarefas com status, prioridade, vencimento, projeto, tags, energia, estimativa, importancia e urgencia
-- Visualizacao de tarefas em lista, Kanban e Matriz de Eisenhower
-- Inbox para captura rapida e processamento em tarefa, projeto, nota ou descarte
-- CRUD de projetos com progresso automatico por tarefas concluidas
-- Meu Dia com selecao de tarefas, atrasadas, vencendo hoje, top 3 prioridades e reflexao
-- Revisao Semanal com tarefas de segunda a domingo, metas da semana e perguntas de retrospectiva
-- CRUD de habitos, marcacao diaria, historico e streak
-- CRUD de metas com progresso e tarefas relacionadas
-- Pomodoro com 25/5/15 minutos e registro de sessoes de foco
-- Notas em markdown simples com tags
-- Estatisticas reais com Recharts
+- Local authentication with isolated user data
+- Dashboard with today's tasks, overdue items, upcoming tasks, habits, goals, and statistics
+- Task CRUD with status, priority, due date, project, tags, energy, estimate, importance, and urgency
+- Task views: list, Kanban, and Eisenhower Matrix
+- Inbox for quick capture and processing into tasks, projects, notes, or discard
+- Project CRUD with automatic progress based on completed tasks
+- "My Day" view with task selection, priorities, and reflection
+- Weekly review with planning and retrospective questions
+- Habit tracking with daily logs, history, and streaks
+- Goals with progress tracking and related tasks
+- Pomodoro timer (25/5/15) with focus session tracking
+- Markdown notes with tagging
+- Real-time statistics using Recharts
 
-## Estrutura
+## Project Structure
 
 ```text
 app/
-  api/                 Rotas de API internas
-  (auth)/              Login e cadastro
-  (app)/               Telas autenticadas
+  api/                 Internal API routes
+  (auth)/              Authentication (login/register)
+  (app)/               Authenticated pages
 components/
-  layout/              Sidebar e shell autenticado
-  tasks/               Formulario de tarefas
-  ui/                  Componentes base
-lib/                   Prisma, auth, validacoes e helpers
+  layout/              Sidebar and application shell
+  tasks/               Task forms
+  ui/                  Base UI components
+lib/                   Prisma, authentication, validation, helpers
 prisma/
-  schema.prisma        Modelo MySQL
-  migrations/          Migration inicial
-  seed.ts              Usuario e dados de teste
+  schema.prisma        MySQL schema
+  migrations/          Database migrations
+  seed.ts              Seed data (test user and initial data)
 ```
 
-## Validacao local
+## Local Validation
 
-Com o MySQL ativo:
+With MySQL running:
 
 ```bash
 npx prisma validate
@@ -123,3 +123,7 @@ npx prisma db seed
 npm run build
 npm run dev
 ```
+
+## License
+
+This project is licensed under the MIT License.

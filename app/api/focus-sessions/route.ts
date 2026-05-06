@@ -32,7 +32,7 @@ export async function POST(request: Request) {
         where: { id: data.taskId, userId: user.id },
         select: { id: true }
       });
-      if (!task) throw new ApiError("Tarefa nao encontrada.", 404);
+      if (!task) throw new ApiError("Task not found.", 404);
     }
 
     const session = await prisma.focusSession.create({

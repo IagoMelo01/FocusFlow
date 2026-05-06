@@ -15,7 +15,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const data = noteSchema.partial().parse(await request.json());
     const existing = await prisma.note.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Nota nao encontrada.", 404);
+    if (!existing) throw new ApiError("Note not found.", 404);
 
     const updateData: Prisma.NoteUpdateInput = {};
     if (data.title !== undefined) updateData.title = data.title;
@@ -35,7 +35,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
     const { id } = await context.params;
     const existing = await prisma.note.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Nota nao encontrada.", 404);
+    if (!existing) throw new ApiError("Note not found.", 404);
 
     await prisma.note.delete({ where: { id } });
     return empty();

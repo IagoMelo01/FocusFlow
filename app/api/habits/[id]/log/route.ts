@@ -65,7 +65,7 @@ export async function POST(request: Request, context: RouteContext) {
     const date = dateOnly(data.date);
     const habit = await prisma.habit.findFirst({ where: { id, userId: user.id } });
 
-    if (!habit) throw new ApiError("Habito nao encontrado.", 404);
+    if (!habit) throw new ApiError("Habit not found.", 404);
 
     if (data.completed) {
       await prisma.habitLog.upsert({

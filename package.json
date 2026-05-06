@@ -5,6 +5,7 @@
   "scripts": {
     "predev": "node scripts/clean-next-trace.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/clean-next-trace.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

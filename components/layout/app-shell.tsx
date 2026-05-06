@@ -22,20 +22,21 @@ import {
 import clsx from "clsx";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
-  { href: "/meu-dia", label: "Meu Dia", icon: CalendarCheck },
-  { href: "/tarefas", label: "Tarefas", icon: ListTodo },
-  { href: "/inbox", label: "Inbox", icon: Inbox },
-  { href: "/projetos", label: "Projetos", icon: ClipboardList },
-  { href: "/habitos", label: "Habitos", icon: Sprout },
-  { href: "/metas", label: "Metas", icon: Goal },
-  { href: "/foco", label: "Foco", icon: Timer },
-  { href: "/notas", label: "Notas", icon: NotebookText },
-  { href: "/revisao-semanal", label: "Revisao Semanal", icon: Target },
-  { href: "/estatisticas", label: "Estatisticas", icon: BarChart3 },
-  { href: "/configuracoes", label: "Configuracoes", icon: Settings }
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: Home },
+  { href: "/meu-dia", labelKey: "nav.myDay", icon: CalendarCheck },
+  { href: "/tarefas", labelKey: "nav.tasks", icon: ListTodo },
+  { href: "/inbox", labelKey: "nav.inbox", icon: Inbox },
+  { href: "/projetos", labelKey: "nav.projects", icon: ClipboardList },
+  { href: "/habitos", labelKey: "nav.habits", icon: Sprout },
+  { href: "/metas", labelKey: "nav.goals", icon: Goal },
+  { href: "/foco", labelKey: "nav.focus", icon: Timer },
+  { href: "/notas", labelKey: "nav.notes", icon: NotebookText },
+  { href: "/revisao-semanal", labelKey: "nav.weeklyReview", icon: Target },
+  { href: "/estatisticas", labelKey: "nav.statistics", icon: BarChart3 },
+  { href: "/configuracoes", labelKey: "nav.settings", icon: Settings }
 ];
 
 export function AppShell({
@@ -48,6 +49,7 @@ export function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { language, setLanguage, t } = useI18n();
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -63,8 +65,22 @@ export function AppShell({
         </div>
         <div>
           <p className="text-lg font-semibold text-ink">FocusFlow</p>
-          <p className="text-xs text-muted">GTD, Kanban e foco</p>
+          <p className="text-xs text-muted">{t("app.subtitle")}</p>
         </div>
+      </div>
+
+      <div className="border-b border-line px-4 py-3">
+        <label className="mb-1.5 block text-xs font-semibold uppercase text-muted">
+          {t("common.language")}
+        </label>
+        <select
+          className="h-9 w-full rounded-md border border-line bg-white px-3 text-sm font-medium text-ink outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+          value={language}
+          onChange={(event) => setLanguage(event.target.value === "pt" ? "pt" : "en")}
+        >
+          <option value="en">{t("common.english")}</option>
+          <option value="pt">{t("common.portuguese")}</option>
+        </select>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
@@ -82,7 +98,7 @@ export function AppShell({
               )}
             >
               <Icon className="h-4 w-4" />
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           );
         })}
@@ -90,12 +106,12 @@ export function AppShell({
 
       <div className="border-t border-line p-4">
         <div className="mb-3 min-w-0">
-          <p className="truncate text-sm font-semibold text-ink">{user.name || "Usuario"}</p>
+          <p className="truncate text-sm font-semibold text-ink">{user.name || t("common.user")}</p>
           <p className="truncate text-xs text-muted">{user.email}</p>
         </div>
         <Button variant="secondary" className="w-full" onClick={logout}>
           <LogOut className="h-4 w-4" />
-          Sair
+          {t("common.logout")}
         </Button>
       </div>
     </aside>
@@ -107,7 +123,7 @@ export function AppShell({
 
       {open ? (
         <div className="fixed inset-0 z-50 flex lg:hidden">
-          <button className="flex-1 bg-slate-900/40" aria-label="Fechar menu" onClick={() => setOpen(false)} />
+          <button className="flex-1 bg-slate-900/40" aria-label={t("common.closeMenu")} onClick={() => setOpen(false)} />
           <div className="w-72 max-w-[85vw]">{sidebar}</div>
         </div>
       ) : null}
@@ -117,23 +133,23 @@ export function AppShell({
           <button
             className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-line bg-white text-ink lg:hidden"
             onClick={() => setOpen(true)}
-            aria-label="Abrir menu"
+            aria-label={t("common.openMenu")}
           >
             <Menu className="h-5 w-5" />
           </button>
           <div className="hidden lg:block">
-            <p className="text-sm font-medium text-muted">Localhost</p>
+            <p className="text-sm font-medium text-muted">{t("common.localhost")}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-semibold text-ink">{user.name || "Usuario"}</p>
+              <p className="text-sm font-semibold text-ink">{user.name || t("common.user")}</p>
               <p className="text-xs text-muted">{user.email}</p>
             </div>
             <button
               className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-line bg-white text-muted hover:text-ink"
               onClick={logout}
-              aria-label="Sair"
-              title="Sair"
+              aria-label={t("common.logout")}
+              title={t("common.logout")}
             >
               <LogOut className="h-4 w-4" />
             </button>

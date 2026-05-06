@@ -18,6 +18,7 @@ import {
 import { Clock, ListChecks } from "lucide-react";
 import { Card, StatCard } from "@/components/ui/card";
 import { EmptyState, LoadingState } from "@/components/ui/empty-state";
+import { useI18n } from "@/lib/i18n";
 
 type StatsData = {
   tasksCompletedByDay: Array<{ day: string; concluidas: number }>;
@@ -34,6 +35,7 @@ const colors = ["#2081c3", "#1f9d72", "#f59e0b", "#dc2626", "#7c3aed"];
 export default function StatsPage() {
   const [data, setData] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useI18n();
 
   useEffect(() => {
     async function load() {
@@ -46,22 +48,22 @@ export default function StatsPage() {
   }, []);
 
   if (loading) return <LoadingState />;
-  if (!data) return <EmptyState title="Nao foi possivel carregar estatisticas." />;
+  if (!data) return <EmptyState title={t("common.errorLoad")} />;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Estatisticas</h1>
-        <p className="mt-1 text-sm text-muted">Relatorios baseados nos registros reais da semana.</p>
+        <h1 className="text-2xl font-semibold text-ink">{t("nav.statistics")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("stats.subtitle")}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <StatCard label="Tempo total em foco" value={`${data.focusTotalMinutes} min`} icon={<Clock className="h-5 w-5" />} />
-        <StatCard label="Tarefas concluidas" value={data.tasksCompletedByDay.reduce((sum, item) => sum + item.concluidas, 0)} icon={<ListChecks className="h-5 w-5" />} />
+        <StatCard label={t("stats.focusTotal")} value={`${data.focusTotalMinutes} min`} icon={<Clock className="h-5 w-5" />} />
+        <StatCard label={t("stats.completedTasks")} value={data.tasksCompletedByDay.reduce((sum, item) => sum + item.concluidas, 0)} icon={<ListChecks className="h-5 w-5" />} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <ChartCard title="Tarefas concluidas por dia">
+        <ChartCard title={t("stats.completedByDay")}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.tasksCompletedByDay}>
               <CartesianGrid strokeDasharray="3 3" stroke="#d9e1ea" />
@@ -73,7 +75,7 @@ export default function StatsPage() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Produtividade semanal">
+        <ChartCard title={t("stats.weeklyProductivity")}>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={data.productivityWeekly}>
               <CartesianGrid strokeDasharray="3 3" stroke="#d9e1ea" />
@@ -85,7 +87,7 @@ export default function StatsPage() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Habitos cumpridos">
+        <ChartCard title={t("stats.habitsDone")}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.habitsByDay}>
               <CartesianGrid strokeDasharray="3 3" stroke="#d9e1ea" />
@@ -97,7 +99,7 @@ export default function StatsPage() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Tempo de foco por dia">
+        <ChartCard title={t("stats.focusByDay")}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.focusByDay}>
               <CartesianGrid strokeDasharray="3 3" stroke="#d9e1ea" />
@@ -109,7 +111,7 @@ export default function StatsPage() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Tarefas por prioridade">
+        <ChartCard title={t("stats.tasksByPriority")}>
           {data.tasksByPriority.length ? (
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
@@ -122,11 +124,11 @@ export default function StatsPage() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyState title="Sem tarefas para agrupar." />
+            <EmptyState title={t("stats.noTasksGroup")} />
           )}
         </ChartCard>
 
-        <ChartCard title="Projetos com maior progresso">
+        <ChartCard title={t("stats.projectsProgress")}>
           {data.projects.length ? (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={data.projects} layout="vertical" margin={{ left: 24 }}>
@@ -138,7 +140,7 @@ export default function StatsPage() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyState title="Sem projetos com tarefas." />
+            <EmptyState title={t("stats.noProjects")} />
           )}
         </ChartCard>
       </div>

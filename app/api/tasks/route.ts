@@ -85,7 +85,7 @@ export async function POST(request: Request) {
         where: { id: data.projectId, userId: user.id },
         select: { id: true }
       });
-      if (!project) throw new ApiError("Projeto nao encontrado.", 404);
+      if (!project) throw new ApiError("Project not found.", 404);
     }
 
     const task = await prisma.task.create({

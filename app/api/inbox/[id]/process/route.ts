@@ -15,8 +15,8 @@ export async function POST(request: Request, context: RouteContext) {
     const data = inboxProcessSchema.parse(await request.json());
     const item = await prisma.inboxItem.findFirst({ where: { id, userId: user.id } });
 
-    if (!item) throw new ApiError("Item da inbox nao encontrado.", 404);
-    if (item.status !== "aberta") throw new ApiError("Este item ja foi processado.", 409);
+    if (!item) throw new ApiError("Inbox item not found.", 404);
+    if (item.status !== "aberta") throw new ApiError("This item has already been processed.", 409);
 
     const result = await prisma.$transaction(async (tx) => {
       let createdRecord: unknown = null;

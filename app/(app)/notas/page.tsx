@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState, LoadingState } from "@/components/ui/empty-state";
 import { Label, inputClass, textareaClass } from "@/components/ui/form";
 import type { NoteDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
 type NoteForm = {
   title: string;
@@ -21,6 +22,7 @@ export default function NotesPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<NoteDTO | null>(null);
   const [search, setSearch] = useState("");
+  const { t } = useI18n();
   const {
     register,
     handleSubmit,
@@ -64,7 +66,7 @@ export default function NotesPage() {
     });
 
     if (!response.ok) {
-      window.alert("Nao foi possivel salvar a nota.");
+      window.alert(t("notes.saveError"));
       return;
     }
 
@@ -74,7 +76,7 @@ export default function NotesPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm("Excluir nota?")) return;
+    if (!window.confirm(t("notes.deleteConfirm"))) return;
     await fetch(`/api/notes/${id}`, { method: "DELETE" });
     await load();
   }
@@ -85,58 +87,58 @@ export default function NotesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Notas</h1>
-        <p className="mt-1 text-sm text-muted">Markdown simples para anotacoes e referencias.</p>
+        <h1 className="text-2xl font-semibold text-ink">{t("nav.notes")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("notes.subtitle")}</p>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
         <div className="space-y-6">
           <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-ink">{editing ? "Editar nota" : "Nova nota"}</h2>
-              {editing ? <Button size="sm" variant="ghost" onClick={() => { setEditing(null); reset(emptyNote()); }}>Cancelar</Button> : null}
+              <h2 className="text-lg font-semibold text-ink">{editing ? t("notes.edit") : t("notes.new")}</h2>
+              {editing ? <Button size="sm" variant="ghost" onClick={() => { setEditing(null); reset(emptyNote()); }}>{t("common.cancel")}</Button> : null}
             </div>
             <form className="space-y-4" onSubmit={handleSubmit(save)}>
               <div className="space-y-1.5">
-                <Label>Titulo</Label>
+                <Label>{t("common.title")}</Label>
                 <input className={inputClass} {...register("title", { required: true })} />
               </div>
               <div className="space-y-1.5">
-                <Label>Conteudo markdown</Label>
+                <Label>{t("notes.markdown")}</Label>
                 <textarea className={textareaClass} rows={10} {...register("content")} />
               </div>
               <div className="space-y-1.5">
-                <Label>Tags</Label>
-                <input className={inputClass} placeholder="rotina, ideia" {...register("tagsText")} />
+                <Label>{t("common.tags")}</Label>
+                <input className={inputClass} placeholder={t("notes.tagPlaceholder")} {...register("tagsText")} />
               </div>
               <Button disabled={isSubmitting}>
                 <Save className="h-4 w-4" />
-                Salvar nota
+                {t("notes.save")}
               </Button>
             </form>
           </Card>
 
           <Card>
-            <h2 className="mb-4 text-lg font-semibold text-ink">Preview</h2>
+            <h2 className="mb-4 text-lg font-semibold text-ink">{t("notes.preview")}</h2>
             <div className="prose max-w-none text-sm text-ink">
               {preview.length ? preview.map((line, index) => (
                 <p key={`${line}-${index}`} className={line.startsWith("#") ? "text-lg font-semibold" : ""}>
                   {line.replace(/^#+\s?/, "")}
                 </p>
-              )) : <p className="text-muted">Escreva uma nota para visualizar.</p>}
+              )) : <p className="text-muted">{t("notes.previewEmpty")}</p>}
             </div>
           </Card>
         </div>
 
         <Card>
           <div className="mb-4 flex gap-2">
-            <input className={inputClass} placeholder="Buscar notas" value={search} onChange={(event) => setSearch(event.target.value)} />
+            <input className={inputClass} placeholder={t("notes.searchPlaceholder")} value={search} onChange={(event) => setSearch(event.target.value)} />
             <Button type="button" variant="secondary" onClick={() => load(search)}>
-              Buscar
+              {t("common.search")}
             </Button>
           </div>
           {loading ? <LoadingState /> : null}
-          {!loading && !notes.length ? <EmptyState title="Nenhuma nota encontrada." /> : null}
+          {!loading && !notes.length ? <EmptyState title={t("notes.none")} /> : null}
           {!loading && notes.length ? (
             <div className="space-y-3">
               {notes.map((note) => (
@@ -156,11 +158,11 @@ export default function NotesPage() {
                   <div className="mt-3 flex gap-2">
                     <Button size="sm" variant="secondary" onClick={() => edit(note)}>
                       <Pencil className="h-4 w-4" />
-                      Editar
+                      {t("common.edit")}
                     </Button>
                     <Button size="sm" variant="danger" onClick={() => remove(note.id)}>
                       <Trash2 className="h-4 w-4" />
-                      Excluir
+                      {t("common.delete")}
                     </Button>
                   </div>
                 </div>

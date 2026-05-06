@@ -22,7 +22,7 @@ export function handleApiError(error: unknown) {
   if (error instanceof ZodError) {
     return NextResponse.json(
       {
-        error: "Dados invalidos.",
+        error: "Invalid data.",
         issues: error.flatten()
       },
       { status: 422 }
@@ -30,5 +30,5 @@ export function handleApiError(error: unknown) {
   }
 
   console.error(error);
-  return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 });
+  return NextResponse.json({ error: "Internal server error." }, { status: 500 });
 }

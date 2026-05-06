@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Label, inputClass, textareaClass } from "@/components/ui/form";
 import type { ProjectDTO, TaskDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
 type TaskFormValues = {
   title: string;
@@ -26,7 +27,7 @@ export function TaskForm({
   initialTask,
   onSubmit,
   submitting,
-  submitLabel = "Salvar tarefa"
+  submitLabel
 }: {
   projects: ProjectDTO[];
   initialTask?: TaskDTO | null;
@@ -34,6 +35,7 @@ export function TaskForm({
   submitting?: boolean;
   submitLabel?: string;
 }) {
+  const { t, label } = useI18n();
   const {
     register,
     handleSubmit,
@@ -74,7 +76,7 @@ export function TaskForm({
     <form className="grid gap-4" onSubmit={handleSubmit(submit)}>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
-          <Label>Titulo</Label>
+          <Label>{t("common.title")}</Label>
           <input
             className={inputClass}
             {...register("title", { required: "Informe o titulo.", minLength: { value: 2, message: "Use ao menos 2 caracteres." } })}
@@ -83,9 +85,9 @@ export function TaskForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label>Projeto</Label>
+          <Label>{t("common.project")}</Label>
           <select className={inputClass} {...register("projectId")}>
-            <option value="">Sem projeto</option>
+            <option value="">{t("common.noProject")}</option>
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
                 {project.name}
@@ -96,56 +98,56 @@ export function TaskForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label>Descricao</Label>
+        <Label>{t("common.description")}</Label>
         <textarea className={textareaClass} rows={3} {...register("description")} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="space-y-1.5">
-          <Label>Status</Label>
+          <Label>{t("common.status")}</Label>
           <select className={inputClass} {...register("status")}>
-            <option value="inbox">Inbox</option>
-            <option value="a_fazer">A fazer</option>
-            <option value="fazendo">Fazendo</option>
-            <option value="aguardando">Aguardando</option>
-            <option value="concluida">Concluida</option>
-            <option value="cancelada">Cancelada</option>
+            <option value="inbox">{label("status", "inbox")}</option>
+            <option value="a_fazer">{label("status", "a_fazer")}</option>
+            <option value="fazendo">{label("status", "fazendo")}</option>
+            <option value="aguardando">{label("status", "aguardando")}</option>
+            <option value="concluida">{label("status", "concluida")}</option>
+            <option value="cancelada">{label("status", "cancelada")}</option>
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <Label>Prioridade</Label>
+          <Label>{t("common.priority")}</Label>
           <select className={inputClass} {...register("priority")}>
-            <option value="baixa">Baixa</option>
-            <option value="media">Media</option>
-            <option value="alta">Alta</option>
-            <option value="urgente">Urgente</option>
+            <option value="baixa">{label("priority", "baixa")}</option>
+            <option value="media">{label("priority", "media")}</option>
+            <option value="alta">{label("priority", "alta")}</option>
+            <option value="urgente">{label("priority", "urgente")}</option>
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <Label>Vencimento</Label>
+          <Label>{t("tasks.dueDate")}</Label>
           <input className={inputClass} type="date" {...register("dueDate")} />
         </div>
 
         <div className="space-y-1.5">
-          <Label>Energia</Label>
+          <Label>{t("tasks.energy")}</Label>
           <select className={inputClass} {...register("energy")}>
-            <option value="baixo">Baixo</option>
-            <option value="medio">Medio</option>
-            <option value="alto">Alto</option>
+            <option value="baixo">{label("energy", "baixo")}</option>
+            <option value="medio">{label("energy", "medio")}</option>
+            <option value="alto">{label("energy", "alto")}</option>
           </select>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-[1fr_160px]">
         <div className="space-y-1.5">
-          <Label>Tags</Label>
-          <input className={inputClass} placeholder="trabalho, casa, estudo" {...register("tagsText")} />
+          <Label>{t("common.tags")}</Label>
+          <input className={inputClass} placeholder={t("tasks.tagPlaceholder")} {...register("tagsText")} />
         </div>
 
         <div className="space-y-1.5">
-          <Label>Minutos</Label>
+          <Label>{t("tasks.estimatedMinutes")}</Label>
           <input className={inputClass} min={1} type="number" {...register("estimatedMinutes")} />
         </div>
       </div>
@@ -153,17 +155,17 @@ export function TaskForm({
       <div className="flex flex-wrap gap-4">
         <label className="inline-flex items-center gap-2 text-sm font-medium text-ink">
           <input className="h-4 w-4 rounded border-line text-brand-600" type="checkbox" {...register("isImportant")} />
-          Importante
+          {t("tasks.important")}
         </label>
         <label className="inline-flex items-center gap-2 text-sm font-medium text-ink">
           <input className="h-4 w-4 rounded border-line text-brand-600" type="checkbox" {...register("isUrgent")} />
-          Urgente
+          {t("tasks.urgent")}
         </label>
       </div>
 
       <Button className="w-fit" disabled={submitting}>
         <Save className="h-4 w-4" />
-        {submitting ? "Salvando..." : submitLabel}
+        {submitting ? t("common.saving") : submitLabel ?? t("tasks.saveTask")}
       </Button>
     </form>
   );

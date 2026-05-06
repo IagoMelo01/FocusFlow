@@ -1,44 +1,44 @@
 export const statusLabels = {
   inbox: "Inbox",
-  a_fazer: "A fazer",
-  fazendo: "Fazendo",
-  aguardando: "Aguardando",
-  concluida: "Concluida",
-  cancelada: "Cancelada"
+  a_fazer: "To do",
+  fazendo: "Doing",
+  aguardando: "Waiting",
+  concluida: "Completed",
+  cancelada: "Canceled"
 } as const;
 
 export const priorityLabels = {
-  baixa: "Baixa",
-  media: "Media",
-  alta: "Alta",
-  urgente: "Urgente"
+  baixa: "Low",
+  media: "Medium",
+  alta: "High",
+  urgente: "Urgent"
 } as const;
 
 export const energyLabels = {
-  baixo: "Baixo",
-  medio: "Medio",
-  alto: "Alto"
+  baixo: "Low",
+  medio: "Medium",
+  alto: "High"
 } as const;
 
 export const projectStatusLabels = {
-  ativo: "Ativo",
-  pausado: "Pausado",
-  concluido: "Concluido",
-  cancelado: "Cancelado"
+  ativo: "Active",
+  pausado: "Paused",
+  concluido: "Completed",
+  cancelado: "Canceled"
 } as const;
 
 export const goalStatusLabels = {
-  em_andamento: "Em andamento",
-  concluida: "Concluida",
-  pausada: "Pausada",
-  cancelada: "Cancelada"
+  em_andamento: "In progress",
+  concluida: "Completed",
+  pausada: "Paused",
+  cancelada: "Canceled"
 } as const;
 
 export const goalCategoryLabels = {
-  saude: "Saude",
-  carreira: "Carreira",
-  estudos: "Estudos",
-  financeiro: "Financeiro",
-  pessoal: "Pessoal",
-  outro: "Outro"
+  saude: "Health",
+  carreira: "Career",
+  estudos: "Studies",
+  financeiro: "Finance",
+  pessoal: "Personal",
+  outro: "Other"
 } as const;

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState, LoadingState } from "@/components/ui/empty-state";
 import { Label, inputClass, textareaClass } from "@/components/ui/form";
 import type { ProjectDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
 type ProjectForm = {
   name: string;
@@ -23,6 +24,7 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<ProjectDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ProjectDTO | null>(null);
+  const { t, label } = useI18n();
   const {
     register,
     handleSubmit,
@@ -66,7 +68,7 @@ export default function ProjectsPage() {
     });
 
     if (!response.ok) {
-      window.alert("Nao foi possivel salvar o projeto.");
+      window.alert(t("projects.saveError"));
       return;
     }
 
@@ -76,7 +78,7 @@ export default function ProjectsPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm("Excluir projeto? As tarefas ficam sem projeto.")) return;
+    if (!window.confirm(t("projects.deleteConfirm"))) return;
     await fetch(`/api/projects/${id}`, { method: "DELETE" });
     await load();
   }
@@ -84,61 +86,61 @@ export default function ProjectsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Projetos</h1>
-        <p className="mt-1 text-sm text-muted">Agrupe tarefas e acompanhe progresso automatico.</p>
+        <h1 className="text-2xl font-semibold text-ink">{t("nav.projects")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("projects.subtitle")}</p>
       </div>
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-ink">{editing ? "Editar projeto" : "Novo projeto"}</h2>
+          <h2 className="text-lg font-semibold text-ink">{editing ? t("projects.edit") : t("projects.new")}</h2>
           {editing ? (
             <Button variant="ghost" size="sm" onClick={() => { setEditing(null); reset(emptyProject()); }}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
           ) : null}
         </div>
 
         <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit(save)}>
           <div className="space-y-1.5">
-            <Label>Nome</Label>
+            <Label>{t("common.name")}</Label>
             <input className={inputClass} {...register("name", { required: true })} />
           </div>
           <div className="space-y-1.5">
-            <Label>Status</Label>
+            <Label>{t("common.status")}</Label>
             <select className={inputClass} {...register("status")}>
-              <option value="ativo">Ativo</option>
-              <option value="pausado">Pausado</option>
-              <option value="concluido">Concluido</option>
-              <option value="cancelado">Cancelado</option>
+              <option value="ativo">{label("projectStatus", "ativo")}</option>
+              <option value="pausado">{label("projectStatus", "pausado")}</option>
+              <option value="concluido">{label("projectStatus", "concluido")}</option>
+              <option value="cancelado">{label("projectStatus", "cancelado")}</option>
             </select>
           </div>
           <div className="space-y-1.5 md:col-span-2">
-            <Label>Descricao</Label>
+            <Label>{t("common.description")}</Label>
             <textarea className={textareaClass} rows={3} {...register("description")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Data inicial</Label>
+            <Label>{t("projects.startDate")}</Label>
             <input className={inputClass} type="date" {...register("startDate")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Data final prevista</Label>
+            <Label>{t("projects.targetDate")}</Label>
             <input className={inputClass} type="date" {...register("targetDate")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Cor</Label>
+            <Label>{t("projects.color")}</Label>
             <input className={`${inputClass} h-10 p-1`} type="color" {...register("color")} />
           </div>
           <div className="flex items-end">
             <Button disabled={isSubmitting}>
               <Save className="h-4 w-4" />
-              {isSubmitting ? "Salvando..." : "Salvar projeto"}
+              {isSubmitting ? t("common.saving") : t("projects.save")}
             </Button>
           </div>
         </form>
       </Card>
 
       {loading ? <LoadingState /> : null}
-      {!loading && !projects.length ? <EmptyState title="Nenhum projeto criado." /> : null}
+      {!loading && !projects.length ? <EmptyState title={t("projects.none")} /> : null}
       {!loading && projects.length ? (
         <div className="grid gap-4 lg:grid-cols-2">
           {projects.map((project) => (
@@ -149,28 +151,28 @@ export default function ProjectsPage() {
                     <span className="h-3 w-3 rounded-full" style={{ backgroundColor: project.color }} />
                     <h2 className="font-semibold text-ink">{project.name}</h2>
                   </div>
-                  <p className="mt-1 text-sm text-muted">{project.description || "Sem descricao."}</p>
+                  <p className="mt-1 text-sm text-muted">{project.description || t("common.noDescription")}</p>
                 </div>
-                <Badge className="bg-slate-100 text-slate-700">{project.status}</Badge>
+                <Badge className="bg-slate-100 text-slate-700">{label("projectStatus", project.status)}</Badge>
               </div>
               <div className="mb-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-muted">Progresso</span>
+                  <span className="font-medium text-muted">{t("projects.progress")}</span>
                   <span className="font-semibold text-ink">{project.progress ?? 0}%</span>
                 </div>
                 <div className="mt-2 h-2 rounded-full bg-slate-100">
                   <div className="h-2 rounded-full bg-brand-600" style={{ width: `${project.progress ?? 0}%` }} />
                 </div>
-                <p className="mt-2 text-xs text-muted">{project.completedTaskCount ?? 0}/{project.taskCount ?? 0} tarefas concluidas</p>
+                <p className="mt-2 text-xs text-muted">{project.completedTaskCount ?? 0}/{project.taskCount ?? 0} {t("projects.completedTasks")}</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="secondary" onClick={() => edit(project)}>
                   <Pencil className="h-4 w-4" />
-                  Editar
+                  {t("common.edit")}
                 </Button>
                 <Button size="sm" variant="danger" onClick={() => remove(project.id)}>
                   <Trash2 className="h-4 w-4" />
-                  Excluir
+                  {t("common.delete")}
                 </Button>
               </div>
             </Card>

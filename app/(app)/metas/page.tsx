@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState, LoadingState } from "@/components/ui/empty-state";
 import { Label, inputClass, textareaClass } from "@/components/ui/form";
 import type { GoalDTO, TaskDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
 type GoalForm = {
   title: string;
@@ -26,6 +27,7 @@ export default function GoalsPage() {
   const [tasks, setTasks] = useState<TaskDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<GoalDTO | null>(null);
+  const { t, label } = useI18n();
   const {
     register,
     handleSubmit,
@@ -79,7 +81,7 @@ export default function GoalsPage() {
     });
 
     if (!response.ok) {
-      window.alert("Nao foi possivel salvar a meta.");
+      window.alert(t("goals.saveError"));
       return;
     }
 
@@ -89,7 +91,7 @@ export default function GoalsPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm("Excluir meta?")) return;
+    if (!window.confirm(t("goals.deleteConfirm"))) return;
     await fetch(`/api/goals/${id}`, { method: "DELETE" });
     await load();
   }
@@ -99,77 +101,77 @@ export default function GoalsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Metas</h1>
-        <p className="mt-1 text-sm text-muted">Acompanhe objetivos pessoais com progresso e tarefas relacionadas.</p>
+        <h1 className="text-2xl font-semibold text-ink">{t("nav.goals")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("goals.subtitle")}</p>
       </div>
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-ink">{editing ? "Editar meta" : "Nova meta"}</h2>
-          {editing ? <Button size="sm" variant="ghost" onClick={() => { setEditing(null); reset(emptyGoal()); }}>Cancelar</Button> : null}
+          <h2 className="text-lg font-semibold text-ink">{editing ? t("goals.edit") : t("goals.new")}</h2>
+          {editing ? <Button size="sm" variant="ghost" onClick={() => { setEditing(null); reset(emptyGoal()); }}>{t("common.cancel")}</Button> : null}
         </div>
 
         <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit(save)}>
           <div className="space-y-1.5">
-            <Label>Titulo</Label>
+            <Label>{t("common.title")}</Label>
             <input className={inputClass} {...register("title", { required: true })} />
           </div>
           <div className="space-y-1.5">
-            <Label>Categoria</Label>
+            <Label>{t("goals.category")}</Label>
             <select className={inputClass} {...register("category")}>
-              <option value="saude">Saude</option>
-              <option value="carreira">Carreira</option>
-              <option value="estudos">Estudos</option>
-              <option value="financeiro">Financeiro</option>
-              <option value="pessoal">Pessoal</option>
-              <option value="outro">Outro</option>
+              <option value="saude">{label("goalCategory", "saude")}</option>
+              <option value="carreira">{label("goalCategory", "carreira")}</option>
+              <option value="estudos">{label("goalCategory", "estudos")}</option>
+              <option value="financeiro">{label("goalCategory", "financeiro")}</option>
+              <option value="pessoal">{label("goalCategory", "pessoal")}</option>
+              <option value="outro">{label("goalCategory", "outro")}</option>
             </select>
           </div>
           <div className="space-y-1.5 md:col-span-2">
-            <Label>Descricao</Label>
+            <Label>{t("common.description")}</Label>
             <textarea className={textareaClass} rows={3} {...register("description")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Data inicial</Label>
+            <Label>{t("goals.startDate")}</Label>
             <input className={inputClass} type="date" {...register("startDate")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Data limite</Label>
+            <Label>{t("goals.dueDate")}</Label>
             <input className={inputClass} type="date" {...register("dueDate")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Status</Label>
+            <Label>{t("common.status")}</Label>
             <select className={inputClass} {...register("status")}>
-              <option value="em_andamento">Em andamento</option>
-              <option value="concluida">Concluida</option>
-              <option value="pausada">Pausada</option>
-              <option value="cancelada">Cancelada</option>
+              <option value="em_andamento">{label("goalStatus", "em_andamento")}</option>
+              <option value="concluida">{label("goalStatus", "concluida")}</option>
+              <option value="pausada">{label("goalStatus", "pausada")}</option>
+              <option value="cancelada">{label("goalStatus", "cancelada")}</option>
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label>Progresso: {progress}%</Label>
+            <Label>{t("goals.progress")}: {progress}%</Label>
             <input className="w-full accent-brand-600" min={0} max={100} type="range" {...register("progress", { valueAsNumber: true })} />
           </div>
           <div className="space-y-2 md:col-span-2">
-            <Label>Tarefas relacionadas</Label>
+            <Label>{t("goals.relatedTasks")}</Label>
             <div className="max-h-44 space-y-2 overflow-y-auto rounded-md border border-line p-3">
               {tasks.length ? tasks.map((task) => (
                 <label key={task.id} className="flex items-center gap-2 text-sm text-ink">
                   <input type="checkbox" value={task.id} {...register("taskIds")} />
                   {task.title}
                 </label>
-              )) : <p className="text-sm text-muted">Nenhuma tarefa disponivel.</p>}
+              )) : <p className="text-sm text-muted">{t("goals.noTasks")}</p>}
             </div>
           </div>
           <Button className="w-fit md:col-span-2" disabled={isSubmitting}>
             <Save className="h-4 w-4" />
-            Salvar meta
+            {t("goals.save")}
           </Button>
         </form>
       </Card>
 
       {loading ? <LoadingState /> : null}
-      {!loading && !goals.length ? <EmptyState title="Nenhuma meta criada." /> : null}
+      {!loading && !goals.length ? <EmptyState title={t("goals.none")} /> : null}
       {!loading && goals.length ? (
         <div className="grid gap-4 lg:grid-cols-2">
           {goals.map((goal) => (
@@ -177,13 +179,13 @@ export default function GoalsPage() {
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                   <h2 className="font-semibold text-ink">{goal.title}</h2>
-                  <p className="mt-1 text-sm text-muted">{goal.description || "Sem descricao."}</p>
+                  <p className="mt-1 text-sm text-muted">{goal.description || t("common.noDescription")}</p>
                 </div>
-                <Badge className="bg-brand-50 text-brand-700">{goal.category}</Badge>
+                <Badge className="bg-brand-50 text-brand-700">{label("goalCategory", goal.category)}</Badge>
               </div>
               <div className="mb-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-muted">{goal.status.replace("_", " ")}</span>
+                  <span className="font-medium text-muted">{label("goalStatus", goal.status)}</span>
                   <span className="font-semibold text-ink">{goal.relatedTaskProgress ?? goal.progress}%</span>
                 </div>
                 <div className="mt-2 h-2 rounded-full bg-slate-100">
@@ -193,11 +195,11 @@ export default function GoalsPage() {
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="secondary" onClick={() => edit(goal)}>
                   <Pencil className="h-4 w-4" />
-                  Editar
+                  {t("common.edit")}
                 </Button>
                 <Button size="sm" variant="danger" onClick={() => remove(goal.id)}>
                   <Trash2 className="h-4 w-4" />
-                  Excluir
+                  {t("common.delete")}
                 </Button>
               </div>
             </Card>

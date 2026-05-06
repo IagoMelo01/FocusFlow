@@ -15,7 +15,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const data = habitSchema.partial().parse(await request.json());
     const existing = await prisma.habit.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Habito nao encontrado.", 404);
+    if (!existing) throw new ApiError("Habit not found.", 404);
 
     const updateData: Prisma.HabitUpdateInput = {};
     if (data.name !== undefined) updateData.name = data.name;
@@ -38,7 +38,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
     const { id } = await context.params;
     const existing = await prisma.habit.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Habito nao encontrado.", 404);
+    if (!existing) throw new ApiError("Habit not found.", 404);
 
     await prisma.habit.delete({ where: { id } });
     return empty();

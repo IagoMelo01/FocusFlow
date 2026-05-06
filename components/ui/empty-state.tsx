@@ -1,4 +1,7 @@
+"use client";
+
 import { Inbox } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export function EmptyState({
   title,
@@ -17,9 +20,11 @@ export function EmptyState({
 }
 
 export function LoadingState({ label = "Carregando dados..." }: { label?: string }) {
+  const { t } = useI18n();
+
   return (
     <div className="rounded-lg border border-line bg-white p-6 text-sm font-medium text-muted">
-      {label}
+      {label === "Carregando dados..." ? t("common.loading") : label}
     </div>
   );
 }

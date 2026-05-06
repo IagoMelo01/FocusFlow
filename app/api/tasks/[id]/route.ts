@@ -20,7 +20,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       where: { id, userId: user.id }
     });
 
-    if (!existing) throw new ApiError("Tarefa nao encontrada.", 404);
+    if (!existing) throw new ApiError("Task not found.", 404);
 
     const updateData: Prisma.TaskUpdateInput = {};
 
@@ -38,7 +38,7 @@ export async function PATCH(request: Request, context: RouteContext) {
           where: { id: data.projectId, userId: user.id },
           select: { id: true }
         });
-        if (!project) throw new ApiError("Projeto nao encontrado.", 404);
+        if (!project) throw new ApiError("Project not found.", 404);
         updateData.project = { connect: { id: data.projectId } };
       } else {
         updateData.project = { disconnect: true };
@@ -77,7 +77,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
       where: { id, userId: user.id }
     });
 
-    if (!existing) throw new ApiError("Tarefa nao encontrada.", 404);
+    if (!existing) throw new ApiError("Task not found.", 404);
 
     await prisma.task.delete({ where: { id } });
     return empty();

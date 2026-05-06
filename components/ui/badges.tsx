@@ -1,4 +1,7 @@
+"use client";
+
 import clsx from "clsx";
+import { useI18n } from "@/lib/i18n";
 
 const priorityStyles = {
   baixa: "bg-slate-100 text-slate-700",
@@ -31,9 +34,11 @@ export function Badge({
 }
 
 export function PriorityBadge({ priority }: { priority: keyof typeof priorityStyles }) {
-  return <Badge className={priorityStyles[priority]}>{priority}</Badge>;
+  const { label } = useI18n();
+  return <Badge className={priorityStyles[priority]}>{label("priority", priority)}</Badge>;
 }
 
 export function StatusBadge({ status }: { status: keyof typeof statusStyles }) {
-  return <Badge className={statusStyles[status]}>{status.replace("_", " ")}</Badge>;
+  const { label } = useI18n();
+  return <Badge className={statusStyles[status]}>{label("status", status)}</Badge>;
 }

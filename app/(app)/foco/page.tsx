@@ -7,11 +7,12 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Label, inputClass } from "@/components/ui/form";
 import type { TaskDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
 const modes = {
-  pomodoro: { label: "Pomodoro", minutes: 25 },
-  short: { label: "Pausa curta", minutes: 5 },
-  long: { label: "Pausa longa", minutes: 15 }
+  pomodoro: { labelKey: "focus.pomodoro", minutes: 25 },
+  short: { labelKey: "focus.shortBreak", minutes: 5 },
+  long: { labelKey: "focus.longBreak", minutes: 15 }
 } as const;
 
 type Mode = keyof typeof modes;
@@ -32,6 +33,7 @@ export default function FocusPage() {
   const [tasks, setTasks] = useState<TaskDTO[]>([]);
   const [sessions, setSessions] = useState<SessionDTO[]>([]);
   const recordedRef = useRef(false);
+  const { t, label } = useI18n();
 
   async function load() {
     const [taskResponse, sessionResponse] = await Promise.all([
@@ -108,8 +110,8 @@ export default function FocusPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Foco</h1>
-        <p className="mt-1 text-sm text-muted">Timer Pomodoro com registro de sessoes no banco.</p>
+        <h1 className="text-2xl font-semibold text-ink">{t("nav.focus")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("focus.subtitle")}</p>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
@@ -121,15 +123,15 @@ export default function FocusPage() {
                 className={`h-10 rounded-md border px-4 text-sm font-medium ${mode === item ? "border-brand-600 bg-brand-600 text-white" : "border-line bg-white text-ink hover:bg-brand-50"}`}
                 onClick={() => setMode(item)}
               >
-                {modes[item].label}
+                {t(modes[item].labelKey)}
               </button>
             ))}
           </div>
 
           <div className="mb-6 space-y-1.5">
-            <Label>Tarefa em foco</Label>
+            <Label>{t("focus.taskInFocus")}</Label>
             <select className={inputClass} value={taskId} onChange={(event) => setTaskId(event.target.value)}>
-              <option value="">Sem tarefa vinculada</option>
+              <option value="">{t("focus.noTask")}</option>
               {tasks.map((task) => (
                 <option key={task.id} value={task.id}>
                   {task.title}
@@ -139,48 +141,48 @@ export default function FocusPage() {
           </div>
 
           <div className="flex flex-col items-center rounded-lg border border-line bg-slate-50 p-8">
-            <p className="text-sm font-semibold text-muted">{modes[mode].label}</p>
+            <p className="text-sm font-semibold text-muted">{t(modes[mode].labelKey)}</p>
             <div className="mt-4 tabular-nums text-7xl font-semibold tracking-normal text-ink">{minutes}:{seconds}</div>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {!running ? (
                 <Button type="button" onClick={start}>
                   <Play className="h-4 w-4" />
-                  Iniciar
+                  {t("focus.start")}
                 </Button>
               ) : (
                 <Button type="button" variant="secondary" onClick={() => setRunning(false)}>
                   <Pause className="h-4 w-4" />
-                  Pausar
+                  {t("focus.pause")}
                 </Button>
               )}
               <Button type="button" variant="secondary" onClick={reset}>
                 <RotateCcw className="h-4 w-4" />
-                Resetar
+                {t("focus.reset")}
               </Button>
               <Button type="button" variant="danger" disabled={!startedAt} onClick={() => recordSession("interrompida")}>
                 <Square className="h-4 w-4" />
-                Interromper
+                {t("focus.interrupt")}
               </Button>
             </div>
           </div>
         </Card>
 
         <Card>
-          <h2 className="mb-4 text-lg font-semibold text-ink">Sessoes recentes</h2>
+          <h2 className="mb-4 text-lg font-semibold text-ink">{t("focus.recent")}</h2>
           {sessions.length ? (
             <div className="space-y-3">
               {sessions.slice(0, 12).map((session) => (
                 <div key={session.id} className="rounded-md border border-line p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium text-ink">{session.task?.title || "Foco livre"}</p>
+                    <p className="font-medium text-ink">{session.task?.title || t("focus.free")}</p>
                     <span className="text-sm font-semibold text-brand-700">{session.durationMinutes} min</span>
                   </div>
-                  <p className="mt-1 text-xs text-muted">{session.status} - {new Date(session.startedAt).toLocaleString("pt-BR")}</p>
+                  <p className="mt-1 text-xs text-muted">{label("focusStatus", session.status)} - {new Date(session.startedAt).toLocaleString("pt-BR")}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <EmptyState title="Nenhuma sessao registrada." />
+            <EmptyState title={t("focus.noSessions")} />
           )}
         </Card>
       </div>

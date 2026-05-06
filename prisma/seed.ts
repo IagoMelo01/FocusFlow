@@ -20,12 +20,15 @@ async function main() {
 
   const project = await prisma.project.upsert({
     where: { id: "seed-project-focusflow" },
-    update: {},
+    update: {
+      name: "Personal organization",
+      description: "Initial project to set up a consistent weekly routine."
+    },
     create: {
       id: "seed-project-focusflow",
       userId: user.id,
-      name: "Organizacao pessoal",
-      description: "Projeto inicial para configurar uma rotina semanal consistente.",
+      name: "Personal organization",
+      description: "Initial project to set up a consistent weekly routine.",
       status: "ativo",
       startDate: startOfDay(new Date()),
       targetDate: addDays(startOfDay(new Date()), 30),
@@ -35,13 +38,16 @@ async function main() {
 
   const taskA = await prisma.task.upsert({
     where: { id: "seed-task-1" },
-    update: {},
+    update: {
+      title: "Define the top three priorities for the day",
+      description: "Choose what really needs to happen today."
+    },
     create: {
       id: "seed-task-1",
       userId: user.id,
       projectId: project.id,
-      title: "Definir tres prioridades do dia",
-      description: "Escolha o que realmente precisa acontecer hoje.",
+      title: "Define the top three priorities for the day",
+      description: "Choose what really needs to happen today.",
       status: "a_fazer",
       priority: "alta",
       dueDate: startOfDay(new Date()),
@@ -54,12 +60,14 @@ async function main() {
 
   await prisma.task.upsert({
     where: { id: "seed-task-2" },
-    update: {},
+    update: {
+      title: "Review weekly pending items"
+    },
     create: {
       id: "seed-task-2",
       userId: user.id,
       projectId: project.id,
-      title: "Revisar pendencias da semana",
+      title: "Review weekly pending items",
       status: "fazendo",
       priority: "media",
       dueDate: addDays(startOfDay(new Date()), 2),
@@ -72,12 +80,15 @@ async function main() {
 
   await prisma.habit.upsert({
     where: { id: "seed-habit-1" },
-    update: {},
+    update: {
+      name: "Plan the day",
+      description: "Open My Day and adjust priorities."
+    },
     create: {
       id: "seed-habit-1",
       userId: user.id,
-      name: "Planejar o dia",
-      description: "Abrir o Meu Dia e ajustar as prioridades.",
+      name: "Plan the day",
+      description: "Open My Day and adjust priorities.",
       frequency: "diaria",
       daysOfWeek: [1, 2, 3, 4, 5],
       suggestedTime: "08:30"
@@ -86,12 +97,15 @@ async function main() {
 
   await prisma.goal.upsert({
     where: { id: "seed-goal-1" },
-    update: {},
+    update: {
+      title: "Build a sustainable routine",
+      description: "Keep planning, focus and review for four weeks."
+    },
     create: {
       id: "seed-goal-1",
       userId: user.id,
-      title: "Criar uma rotina sustentavel",
-      description: "Manter planejamento, foco e revisao por quatro semanas.",
+      title: "Build a sustainable routine",
+      description: "Keep planning, focus and review for four weeks.",
       category: "pessoal",
       startDate: startOfDay(new Date()),
       dueDate: addDays(startOfDay(new Date()), 28),
@@ -102,31 +116,37 @@ async function main() {
 
   await prisma.inboxItem.upsert({
     where: { id: "seed-inbox-1" },
-    update: {},
+    update: {
+      title: "Set a weekly window to review goals",
+      content: "Try Friday late afternoon."
+    },
     create: {
       id: "seed-inbox-1",
       userId: user.id,
       type: "ideia",
-      title: "Separar uma janela semanal para revisar metas",
-      content: "Testar sexta-feira no fim da tarde."
+      title: "Set a weekly window to review goals",
+      content: "Try Friday late afternoon."
     }
   });
 
   await prisma.note.upsert({
     where: { id: "seed-note-1" },
-    update: {},
+    update: {
+      title: "FocusFlow system",
+      content: "Use Inbox to capture, Tasks to organize and Weekly Review to adjust."
+    },
     create: {
       id: "seed-note-1",
       userId: user.id,
-      title: "Sistema FocusFlow",
-      content: "Use a Inbox para capturar, Tarefas para organizar e Revisao Semanal para ajustar.",
-      tags: ["gtd", "rotina"]
+      title: "FocusFlow system",
+      content: "Use Inbox to capture, Tasks to organize and Weekly Review to adjust.",
+      tags: ["gtd", "routine"]
     }
   });
 
   await prisma.$executeRaw`
     INSERT INTO daily_plans (id, user_id, date, reflection, created_at, updated_at)
-    VALUES (${randomUUID()}, ${user.id}, CURDATE(), ${"Comece pequeno e proteja o foco."}, NOW(3), NOW(3))
+    VALUES (${randomUUID()}, ${user.id}, CURDATE(), ${"Start small and protect your focus."}, NOW(3), NOW(3))
     ON DUPLICATE KEY UPDATE reflection = VALUES(reflection), updated_at = NOW(3)
   `;
 

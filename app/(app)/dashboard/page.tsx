@@ -7,6 +7,7 @@ import { Badge, PriorityBadge, StatusBadge } from "@/components/ui/badges";
 import { Card, StatCard } from "@/components/ui/card";
 import { EmptyState, LoadingState } from "@/components/ui/empty-state";
 import type { GoalDTO, HabitDTO, ProjectDTO, TaskDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
 type DashboardData = {
   todayTasks: TaskDTO[];
@@ -27,6 +28,7 @@ type DashboardData = {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useI18n();
 
   async function load() {
     setLoading(true);
@@ -41,36 +43,36 @@ export default function DashboardPage() {
   }, []);
 
   if (loading) return <LoadingState />;
-  if (!data) return <EmptyState title="Nao foi possivel carregar o dashboard." />;
+  if (!data) return <EmptyState title={t("common.errorLoad")} />;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h1 className="text-2xl font-semibold text-ink">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted">Visao pratica do que precisa da sua atencao hoje.</p>
+          <p className="mt-1 text-sm text-muted">{t("dashboard.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <Link href="/meu-dia" className="inline-flex h-10 items-center justify-center rounded-md border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700">
-            Abrir Meu Dia
+            {t("dashboard.openMyDay")}
           </Link>
           <Link href="/tarefas" className="inline-flex h-10 items-center justify-center rounded-md border border-line bg-white px-4 text-sm font-medium text-ink hover:bg-brand-50">
-            Nova tarefa
+            {t("dashboard.newTask")}
           </Link>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Concluidas na semana" value={data.stats.completedThisWeek} icon={<CheckCircle2 className="h-5 w-5" />} />
-        <StatCard label="Taxa de conclusao" value={`${data.stats.completionRate}%`} icon={<ListTodo className="h-5 w-5" />} />
-        <StatCard label="Habitos cumpridos" value={data.stats.habitsDoneThisWeek} detail={`${data.stats.habitsDoneToday} hoje`} icon={<Flame className="h-5 w-5" />} />
-        <StatCard label="Metas em andamento" value={data.stats.goalsInProgress} icon={<Goal className="h-5 w-5" />} />
+        <StatCard label={t("dashboard.completedWeek")} value={data.stats.completedThisWeek} icon={<CheckCircle2 className="h-5 w-5" />} />
+        <StatCard label={t("dashboard.completionRate")} value={`${data.stats.completionRate}%`} icon={<ListTodo className="h-5 w-5" />} />
+        <StatCard label={t("dashboard.habitsDone")} value={data.stats.habitsDoneThisWeek} detail={`${data.stats.habitsDoneToday} ${t("dashboard.todaySuffix")}`} icon={<Flame className="h-5 w-5" />} />
+        <StatCard label={t("dashboard.goalsInProgress")} value={data.stats.goalsInProgress} icon={<Goal className="h-5 w-5" />} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <Card>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-ink">Tarefas de hoje</h2>
+            <h2 className="text-lg font-semibold text-ink">{t("dashboard.todayTasks")}</h2>
             <Badge className="bg-brand-50 text-brand-700">{data.todayTasks.length}</Badge>
           </div>
           {data.todayTasks.length ? (
@@ -80,13 +82,13 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <EmptyState title="Nada vencendo hoje." description="Use Meu Dia para escolher prioridades ou capturar uma tarefa nova." />
+            <EmptyState title={t("dashboard.noTodayTasks")} description={t("dashboard.noTodayTasksDesc")} />
           )}
         </Card>
 
         <Card>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-ink">Habitos do dia</h2>
+            <h2 className="text-lg font-semibold text-ink">{t("dashboard.todayHabits")}</h2>
             <Badge className="bg-mint-50 text-mint-600">{data.habitsToday.length}</Badge>
           </div>
           {data.habitsToday.length ? (
@@ -95,7 +97,7 @@ export default function DashboardPage() {
                 <div key={habit.id} className="flex items-center justify-between rounded-md border border-line p-3">
                   <div>
                     <p className="font-medium text-ink">{habit.name}</p>
-                    <p className="text-xs text-muted">Streak {habit.streakCurrent} / melhor {habit.streakBest}</p>
+                    <p className="text-xs text-muted">{t("dashboard.streak")} {habit.streakCurrent} / {t("dashboard.best")} {habit.streakBest}</p>
                   </div>
                   <button
                     className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-ink hover:bg-mint-50"
@@ -109,28 +111,28 @@ export default function DashboardPage() {
                       load();
                     }}
                   >
-                    {habit.logs.some((log) => log.completed) ? "Desfazer" : "Feito"}
+                    {habit.logs.some((log) => log.completed) ? t("dashboard.undo") : t("dashboard.done")}
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <EmptyState title="Nenhum habito para hoje." />
+            <EmptyState title={t("dashboard.noTodayHabits")} />
           )}
         </Card>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <Card>
-          <h2 className="mb-4 text-lg font-semibold text-ink">Atrasadas</h2>
-          <TaskList tasks={data.overdueTasks} empty="Sem atrasos." />
+          <h2 className="mb-4 text-lg font-semibold text-ink">{t("dashboard.overdue")}</h2>
+          <TaskList tasks={data.overdueTasks} empty={t("dashboard.noOverdue")} />
         </Card>
         <Card>
-          <h2 className="mb-4 text-lg font-semibold text-ink">Proximas</h2>
-          <TaskList tasks={data.upcomingTasks} empty="Nenhuma proxima tarefa." />
+          <h2 className="mb-4 text-lg font-semibold text-ink">{t("dashboard.upcoming")}</h2>
+          <TaskList tasks={data.upcomingTasks} empty={t("dashboard.noUpcoming")} />
         </Card>
         <Card>
-          <h2 className="mb-4 text-lg font-semibold text-ink">Metas</h2>
+          <h2 className="mb-4 text-lg font-semibold text-ink">{t("dashboard.goals")}</h2>
           <div className="space-y-4">
             {data.goals.length ? data.goals.map((goal) => (
               <div key={goal.id}>
@@ -142,7 +144,7 @@ export default function DashboardPage() {
                   <div className="h-2 rounded-full bg-mint-500" style={{ width: `${goal.progress}%` }} />
                 </div>
               </div>
-            )) : <EmptyState title="Nenhuma meta em andamento." />}
+            )) : <EmptyState title={t("dashboard.noGoals")} />}
           </div>
         </Card>
       </div>
@@ -169,6 +171,8 @@ function TaskList({ tasks, empty }: { tasks: TaskDTO[]; empty: string }) {
 }
 
 function TaskRow({ task, onDone }: { task: TaskDTO; onDone: () => void }) {
+  const { t } = useI18n();
+
   return (
     <div className="flex items-center justify-between gap-3 rounded-md border border-line p-3">
       <div className="min-w-0">
@@ -178,7 +182,7 @@ function TaskRow({ task, onDone }: { task: TaskDTO; onDone: () => void }) {
         </div>
         <p className="mt-1 flex items-center gap-1 text-xs text-muted">
           <Clock3 className="h-3.5 w-3.5" />
-          {task.estimatedMinutes ? `${task.estimatedMinutes} min` : "Sem estimativa"}
+          {task.estimatedMinutes ? `${task.estimatedMinutes} min` : t("common.noEstimate")}
         </p>
       </div>
       <button
@@ -192,7 +196,7 @@ function TaskRow({ task, onDone }: { task: TaskDTO; onDone: () => void }) {
           onDone();
         }}
       >
-        Concluir
+        {t("common.complete")}
       </button>
     </div>
   );

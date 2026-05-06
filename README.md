@@ -12,6 +12,7 @@ FocusFlow is a personal productivity system built with Next.js, Node.js, Prisma,
 - Forms with React Hook Form
 - Validation with Zod
 - Charts with Recharts
+- English UI by default with a Portuguese/English language selector
 
 ## Requirements
 
@@ -81,6 +82,7 @@ Access the app at: http://localhost:3000
 ## Features
 
 - Local authentication with isolated user data
+- Language selector in the sidebar menu, persisted in the browser
 - Dashboard with today's tasks, overdue items, upcoming tasks, habits, goals, and statistics
 - Task CRUD with status, priority, due date, project, tags, energy, estimate, importance, and urgency
 - Task views: list, Kanban, and Eisenhower Matrix

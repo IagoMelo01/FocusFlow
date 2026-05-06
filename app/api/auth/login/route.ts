@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const user = await prisma.user.findUnique({ where: { email: data.email } });
 
     if (!user || !(await verifyPassword(data.password, user.passwordHash))) {
-      throw new ApiError("E-mail ou senha invalidos.", 401);
+      throw new ApiError("Invalid email or password.", 401);
     }
 
     const token = await signSession(user.id);

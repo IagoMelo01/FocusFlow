@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState, LoadingState } from "@/components/ui/empty-state";
 import { Label, inputClass, textareaClass } from "@/components/ui/form";
 import type { TaskDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
 type ReviewForm = {
   weekStart: string;
@@ -34,6 +35,7 @@ function currentWeekInput() {
 export default function WeeklyReviewPage() {
   const [data, setData] = useState<ReviewData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useI18n();
   const {
     register,
     handleSubmit,
@@ -81,7 +83,7 @@ export default function WeeklyReviewPage() {
     });
 
     if (!response.ok) {
-      window.alert("Nao foi possivel salvar a revisao.");
+      window.alert(t("weekly.saveError"));
       return;
     }
 
@@ -91,13 +93,13 @@ export default function WeeklyReviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Revisao Semanal</h1>
-        <p className="mt-1 text-sm text-muted">Planeje a semana e registre aprendizados.</p>
+        <h1 className="text-2xl font-semibold text-ink">{t("nav.weeklyReview")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("weekly.subtitle")}</p>
       </div>
 
       <Card>
         <div className="space-y-1.5 md:max-w-xs">
-          <Label>Semana iniciando em</Label>
+          <Label>{t("weekly.weekStart")}</Label>
           <input className={inputClass} type="date" {...register("weekStart")} />
         </div>
       </Card>
@@ -119,7 +121,7 @@ export default function WeeklyReviewPage() {
                         <StatusBadge status={task.status} />
                       </div>
                     </div>
-                  )) : <p className="text-xs text-muted">Sem tarefas.</p>}
+                  )) : <p className="text-xs text-muted">{t("weekly.noTasks")}</p>}
                 </div>
               </div>
             ))}
@@ -128,22 +130,22 @@ export default function WeeklyReviewPage() {
           <Card>
             <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit(save)}>
               <div className="space-y-1.5 md:col-span-2">
-                <Label>Metas da semana</Label>
+                <Label>{t("weekly.goals")}</Label>
                 <textarea className={textareaClass} rows={3} {...register("weeklyGoals")} />
               </div>
-              <Question label="O que consegui concluir?" field="completed" register={register} />
-              <Question label="O que ficou pendente?" field="pending" register={register} />
-              <Question label="O que me atrapalhou?" field="blockers" register={register} />
-              <Question label="O que posso melhorar na proxima semana?" field="improvements" register={register} />
+              <Question label={t("weekly.completed")} field="completed" register={register} />
+              <Question label={t("weekly.pending")} field="pending" register={register} />
+              <Question label={t("weekly.blockers")} field="blockers" register={register} />
+              <Question label={t("weekly.improvements")} field="improvements" register={register} />
               <Button className="w-fit md:col-span-2" disabled={isSubmitting}>
                 <Save className="h-4 w-4" />
-                Salvar revisao
+                {t("weekly.save")}
               </Button>
             </form>
           </Card>
         </>
       ) : !loading ? (
-        <EmptyState title="Semana nao encontrada." />
+        <EmptyState title={t("weekly.notFound")} />
       ) : null}
     </div>
   );

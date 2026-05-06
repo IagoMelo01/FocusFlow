@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState, LoadingState } from "@/components/ui/empty-state";
 import { Label, inputClass, textareaClass } from "@/components/ui/form";
 import type { HabitDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
 type HabitForm = {
   name: string;
@@ -37,6 +38,7 @@ export default function HabitsPage() {
   const [habits, setHabits] = useState<HabitDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<HabitDTO | null>(null);
+  const { t, label } = useI18n();
   const {
     register,
     handleSubmit,
@@ -82,7 +84,7 @@ export default function HabitsPage() {
     });
 
     if (!response.ok) {
-      window.alert("Nao foi possivel salvar o habito.");
+      window.alert(t("habits.saveError"));
       return;
     }
 
@@ -101,7 +103,7 @@ export default function HabitsPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm("Excluir habito e historico?")) return;
+    if (!window.confirm(t("habits.deleteConfirm"))) return;
     await fetch(`/api/habits/${id}`, { method: "DELETE" });
     await load();
   }
@@ -109,45 +111,45 @@ export default function HabitsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Habitos</h1>
-        <p className="mt-1 text-sm text-muted">Controle frequencia, historico e sequencias.</p>
+        <h1 className="text-2xl font-semibold text-ink">{t("nav.habits")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("habits.subtitle")}</p>
       </div>
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-ink">{editing ? "Editar habito" : "Novo habito"}</h2>
-          {editing ? <Button variant="ghost" size="sm" onClick={() => { setEditing(null); reset(emptyHabit()); }}>Cancelar</Button> : null}
+          <h2 className="text-lg font-semibold text-ink">{editing ? t("habits.edit") : t("habits.new")}</h2>
+          {editing ? <Button variant="ghost" size="sm" onClick={() => { setEditing(null); reset(emptyHabit()); }}>{t("common.cancel")}</Button> : null}
         </div>
 
         <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit(save)}>
           <div className="space-y-1.5">
-            <Label>Nome</Label>
+            <Label>{t("common.name")}</Label>
             <input className={inputClass} {...register("name", { required: true })} />
           </div>
           <div className="space-y-1.5">
-            <Label>Frequencia</Label>
+            <Label>{t("habits.frequency")}</Label>
             <select className={inputClass} {...register("frequency")}>
-              <option value="diaria">Diaria</option>
-              <option value="semanal">Semanal</option>
+              <option value="diaria">{label("habitFrequency", "diaria")}</option>
+              <option value="semanal">{label("habitFrequency", "semanal")}</option>
             </select>
           </div>
           <div className="space-y-1.5 md:col-span-2">
-            <Label>Descricao</Label>
+            <Label>{t("common.description")}</Label>
             <textarea className={textareaClass} rows={3} {...register("description")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Horario sugerido</Label>
+            <Label>{t("habits.suggestedTime")}</Label>
             <input className={inputClass} type="time" {...register("suggestedTime")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Status</Label>
+            <Label>{t("common.status")}</Label>
             <label className="mt-3 flex items-center gap-2 text-sm font-medium text-ink">
               <input type="checkbox" {...register("isActive")} />
-              Ativo
+              {t("habits.active")}
             </label>
           </div>
           <div className="space-y-2 md:col-span-2">
-            <Label>Dias aplicaveis</Label>
+            <Label>{t("habits.applicableDays")}</Label>
             <div className="flex flex-wrap gap-2">
               {weekDays.map((day) => (
                 <label key={day.value} className="inline-flex h-9 items-center gap-2 rounded-md border border-line bg-white px-3 text-sm font-medium">
@@ -159,13 +161,13 @@ export default function HabitsPage() {
           </div>
           <Button className="w-fit md:col-span-2" disabled={isSubmitting}>
             <Save className="h-4 w-4" />
-            Salvar habito
+            {t("habits.save")}
           </Button>
         </form>
       </Card>
 
       {loading ? <LoadingState /> : null}
-      {!loading && !habits.length ? <EmptyState title="Nenhum habito criado." /> : null}
+      {!loading && !habits.length ? <EmptyState title={t("habits.none")} /> : null}
       {!loading && habits.length ? (
         <div className="grid gap-4 lg:grid-cols-2">
           {habits.map((habit) => {
@@ -175,20 +177,20 @@ export default function HabitsPage() {
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
                     <h2 className="font-semibold text-ink">{habit.name}</h2>
-                    <p className="mt-1 text-sm text-muted">{habit.description || "Sem descricao."}</p>
+                    <p className="mt-1 text-sm text-muted">{habit.description || t("common.noDescription")}</p>
                   </div>
                   <Badge className={habit.isActive ? "bg-mint-50 text-mint-600" : "bg-slate-100 text-slate-700"}>
-                    {habit.isActive ? "ativo" : "inativo"}
+                    {habit.isActive ? t("habits.active") : t("habits.inactive")}
                   </Badge>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-md border border-line p-3">
-                    <p className="flex items-center gap-2 text-sm font-medium text-muted"><Flame className="h-4 w-4" />Streak atual</p>
+                    <p className="flex items-center gap-2 text-sm font-medium text-muted"><Flame className="h-4 w-4" />{t("habits.currentStreak")}</p>
                     <p className="mt-1 text-2xl font-semibold text-ink">{habit.streakCurrent}</p>
                   </div>
                   <div className="rounded-md border border-line p-3">
-                    <p className="text-sm font-medium text-muted">Maior streak</p>
+                    <p className="text-sm font-medium text-muted">{t("habits.bestStreak")}</p>
                     <p className="mt-1 text-2xl font-semibold text-ink">{habit.streakBest}</p>
                   </div>
                 </div>
@@ -196,27 +198,27 @@ export default function HabitsPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button size="sm" variant={doneToday ? "secondary" : "primary"} onClick={() => mark(habit, !doneToday)}>
                     <Check className="h-4 w-4" />
-                    {doneToday ? "Desfazer hoje" : "Marcar hoje"}
+                    {doneToday ? t("habits.undoToday") : t("habits.markToday")}
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => edit(habit)}>
                     <Pencil className="h-4 w-4" />
-                    Editar
+                    {t("common.edit")}
                   </Button>
                   <Button size="sm" variant="danger" onClick={() => remove(habit.id)}>
                     <Trash2 className="h-4 w-4" />
-                    Excluir
+                    {t("common.delete")}
                   </Button>
                 </div>
 
                 <div className="mt-4">
-                  <p className="mb-2 text-sm font-semibold text-ink">Historico recente</p>
+                  <p className="mb-2 text-sm font-semibold text-ink">{t("habits.recentHistory")}</p>
                   <div className="flex flex-wrap gap-1">
                     {habit.logs.slice(0, 21).map((log) => (
                       <span key={log.id} className="rounded bg-mint-50 px-2 py-1 text-xs font-medium text-mint-600">
                         {log.date.slice(5, 10)}
                       </span>
                     ))}
-                    {!habit.logs.length ? <span className="text-sm text-muted">Sem registros.</span> : null}
+                    {!habit.logs.length ? <span className="text-sm text-muted">{t("habits.noRecords")}</span> : null}
                   </div>
                 </div>
               </Card>

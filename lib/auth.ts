@@ -61,7 +61,7 @@ export async function getCurrentUser() {
 export async function requireCurrentUser() {
   const user = await getCurrentUser();
   if (!user) {
-    throw new ApiError("Sessao expirada ou usuario nao autenticado.", 401);
+    throw new ApiError("Session expired or user not authenticated.", 401);
   }
   return user;
 }

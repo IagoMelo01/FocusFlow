@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     const mainPriorityIds = new Set(data.mainPriorityTaskIds);
 
     if (mainPriorityIds.size > 3) {
-      throw new ApiError("Escolha no maximo 3 prioridades principais.", 422);
+      throw new ApiError("Choose up to 3 main priorities.", 422);
     }
 
     const ownedTasks = await prisma.task.findMany({

@@ -16,7 +16,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const data = goalSchema.partial().parse(await request.json());
     const existing = await prisma.goal.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Meta nao encontrada.", 404);
+    if (!existing) throw new ApiError("Goal not found.", 404);
 
     const updateData: Prisma.GoalUpdateInput = {};
     if (data.title !== undefined) updateData.title = data.title;
@@ -58,7 +58,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
     const { id } = await context.params;
     const existing = await prisma.goal.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Meta nao encontrada.", 404);
+    if (!existing) throw new ApiError("Goal not found.", 404);
 
     await prisma.goal.delete({ where: { id } });
     return empty();

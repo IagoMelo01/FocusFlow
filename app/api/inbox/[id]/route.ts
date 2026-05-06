@@ -15,7 +15,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const data = inboxSchema.partial().parse(await request.json());
 
     const existing = await prisma.inboxItem.findFirst({ where: { id, userId: user.id } });
-    if (!existing) throw new ApiError("Item da inbox nao encontrado.", 404);
+    if (!existing) throw new ApiError("Inbox item not found.", 404);
 
     const updateData: Prisma.InboxItemUpdateInput = {};
     if (data.title !== undefined) updateData.title = data.title;
@@ -35,7 +35,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
     const { id } = await context.params;
     const existing = await prisma.inboxItem.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Item da inbox nao encontrado.", 404);
+    if (!existing) throw new ApiError("Inbox item not found.", 404);
 
     await prisma.inboxItem.delete({ where: { id } });
     return empty();

@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const existing = await prisma.user.findUnique({ where: { email: data.email } });
 
     if (existing) {
-      throw new ApiError("Ja existe um usuario com este e-mail.", 409);
+      throw new ApiError("A user with this email already exists.", 409);
     }
 
     const user = await prisma.user.create({

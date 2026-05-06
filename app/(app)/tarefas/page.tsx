@@ -9,13 +9,14 @@ import { Card } from "@/components/ui/card";
 import { EmptyState, LoadingState } from "@/components/ui/empty-state";
 import { inputClass } from "@/components/ui/form";
 import type { ProjectDTO, TaskDTO } from "@/lib/client-types";
+import { useI18n } from "@/lib/i18n";
 
-const kanbanColumns: Array<{ status: TaskDTO["status"]; label: string }> = [
-  { status: "inbox", label: "Inbox" },
-  { status: "a_fazer", label: "A fazer" },
-  { status: "fazendo", label: "Fazendo" },
-  { status: "aguardando", label: "Aguardando" },
-  { status: "concluida", label: "Concluida" }
+const kanbanColumns: Array<{ status: TaskDTO["status"] }> = [
+  { status: "inbox" },
+  { status: "a_fazer" },
+  { status: "fazendo" },
+  { status: "aguardando" },
+  { status: "concluida" }
 ];
 
 export default function TasksPage() {
@@ -25,6 +26,7 @@ export default function TasksPage() {
   const [submitting, setSubmitting] = useState(false);
   const [editing, setEditing] = useState<TaskDTO | null>(null);
   const [view, setView] = useState<"list" | "kanban" | "matrix">("list");
+  const { t, label } = useI18n();
   const [filters, setFilters] = useState({
     status: "",
     priority: "",
@@ -67,7 +69,7 @@ export default function TasksPage() {
 
     if (!response.ok) {
       const error = await response.json().catch(() => null);
-      window.alert(error?.error || "Nao foi possivel salvar a tarefa.");
+      window.alert(error?.error || t("tasks.saveError"));
       return;
     }
 
@@ -85,7 +87,7 @@ export default function TasksPage() {
   }
 
   async function deleteTask(id: string) {
-    if (!window.confirm("Excluir esta tarefa?")) return;
+    if (!window.confirm(t("tasks.deleteConfirm"))) return;
     await fetch(`/api/tasks/${id}`, { method: "DELETE" });
     await load();
   }
@@ -101,22 +103,22 @@ export default function TasksPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
-          <h1 className="text-2xl font-semibold text-ink">Tarefas</h1>
-          <p className="mt-1 text-sm text-muted">Organize acoes por GTD, Kanban e Matriz de Eisenhower.</p>
+          <h1 className="text-2xl font-semibold text-ink">{t("nav.tasks")}</h1>
+          <p className="mt-1 text-sm text-muted">{t("tasks.subtitle")}</p>
         </div>
         <div className="flex rounded-md border border-line bg-white p-1">
-          <ViewButton active={view === "list"} onClick={() => setView("list")} icon={<List className="h-4 w-4" />} label="Lista" />
-          <ViewButton active={view === "kanban"} onClick={() => setView("kanban")} icon={<LayoutDashboard className="h-4 w-4" />} label="Kanban" />
-          <ViewButton active={view === "matrix"} onClick={() => setView("matrix")} icon={<Plus className="h-4 w-4" />} label="Matriz" />
+          <ViewButton active={view === "list"} onClick={() => setView("list")} icon={<List className="h-4 w-4" />} label={t("tasks.list")} />
+          <ViewButton active={view === "kanban"} onClick={() => setView("kanban")} icon={<LayoutDashboard className="h-4 w-4" />} label={t("tasks.kanban")} />
+          <ViewButton active={view === "matrix"} onClick={() => setView("matrix")} icon={<Plus className="h-4 w-4" />} label={t("tasks.matrix")} />
         </div>
       </div>
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-ink">{editing ? "Editar tarefa" : "Criar tarefa"}</h2>
+          <h2 className="text-lg font-semibold text-ink">{editing ? t("tasks.editTask") : t("tasks.createTask")}</h2>
           {editing ? (
             <Button variant="ghost" size="sm" onClick={() => setEditing(null)}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
           ) : null}
         </div>
@@ -125,7 +127,7 @@ export default function TasksPage() {
           initialTask={editing}
           onSubmit={saveTask}
           submitting={submitting}
-          submitLabel={editing ? "Atualizar tarefa" : "Criar tarefa"}
+          submitLabel={editing ? t("tasks.updateTask") : t("tasks.createTask")}
         />
       </Card>
 
@@ -135,7 +137,7 @@ export default function TasksPage() {
             <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted" />
             <input
               className={`${inputClass} pl-9`}
-              placeholder="Buscar por titulo ou descricao"
+              placeholder={t("tasks.searchPlaceholder")}
               value={filters.search}
               onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
               onKeyDown={(event) => {
@@ -144,23 +146,23 @@ export default function TasksPage() {
             />
           </div>
           <select className={inputClass} value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}>
-            <option value="">Todos status</option>
-            <option value="inbox">Inbox</option>
-            <option value="a_fazer">A fazer</option>
-            <option value="fazendo">Fazendo</option>
-            <option value="aguardando">Aguardando</option>
-            <option value="concluida">Concluida</option>
-            <option value="cancelada">Cancelada</option>
+            <option value="">{t("tasks.allStatuses")}</option>
+            <option value="inbox">{label("status", "inbox")}</option>
+            <option value="a_fazer">{label("status", "a_fazer")}</option>
+            <option value="fazendo">{label("status", "fazendo")}</option>
+            <option value="aguardando">{label("status", "aguardando")}</option>
+            <option value="concluida">{label("status", "concluida")}</option>
+            <option value="cancelada">{label("status", "cancelada")}</option>
           </select>
           <select className={inputClass} value={filters.priority} onChange={(event) => setFilters((current) => ({ ...current, priority: event.target.value }))}>
-            <option value="">Todas prioridades</option>
-            <option value="baixa">Baixa</option>
-            <option value="media">Media</option>
-            <option value="alta">Alta</option>
-            <option value="urgente">Urgente</option>
+            <option value="">{t("tasks.allPriorities")}</option>
+            <option value="baixa">{label("priority", "baixa")}</option>
+            <option value="media">{label("priority", "media")}</option>
+            <option value="alta">{label("priority", "alta")}</option>
+            <option value="urgente">{label("priority", "urgente")}</option>
           </select>
           <select className={inputClass} value={filters.projectId} onChange={(event) => setFilters((current) => ({ ...current, projectId: event.target.value }))}>
-            <option value="">Todos projetos</option>
+            <option value="">{t("tasks.allProjects")}</option>
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
                 {project.name}
@@ -171,12 +173,12 @@ export default function TasksPage() {
         <div className="mt-3 flex gap-2">
           <input
             className={inputClass}
-            placeholder="Filtrar tag"
+            placeholder={t("tasks.filterTag")}
             value={filters.tag}
             onChange={(event) => setFilters((current) => ({ ...current, tag: event.target.value }))}
           />
           <Button variant="secondary" onClick={load}>
-            Buscar
+            {t("common.search")}
           </Button>
         </div>
       </Card>
@@ -212,7 +214,9 @@ function TaskList({
   onPatch: (id: string, payload: Record<string, unknown>) => void;
   onDelete: (id: string) => void;
 }) {
-  if (!tasks.length) return <EmptyState title="Nenhuma tarefa encontrada." />;
+  const { t } = useI18n();
+
+  if (!tasks.length) return <EmptyState title={t("tasks.noTasks")} />;
 
   return (
     <div className="space-y-3">
@@ -223,16 +227,16 @@ function TaskList({
             {task.status !== "concluida" ? (
               <Button size="sm" variant="secondary" onClick={() => onPatch(task.id, { status: "concluida" })}>
                 <Check className="h-4 w-4" />
-                Concluir
+                {t("common.complete")}
               </Button>
             ) : null}
             <Button size="sm" variant="secondary" onClick={() => onEdit(task)}>
               <Pencil className="h-4 w-4" />
-              Editar
+              {t("common.edit")}
             </Button>
             <Button size="sm" variant="danger" onClick={() => onDelete(task.id)}>
               <Trash2 className="h-4 w-4" />
-              Excluir
+              {t("common.delete")}
             </Button>
           </div>
         </Card>
@@ -252,12 +256,14 @@ function Kanban({
   onEdit: (task: TaskDTO) => void;
   onDelete: (id: string) => void;
 }) {
+  const { t, label } = useI18n();
+
   return (
     <div className="grid gap-4 xl:grid-cols-5">
       {kanbanColumns.map((column) => (
         <div key={column.status} className="min-h-96 rounded-lg border border-line bg-white p-3">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-ink">{column.label}</h2>
+            <h2 className="text-sm font-semibold text-ink">{label("status", column.status)}</h2>
             <span className="text-xs font-medium text-muted">{tasks.filter((task) => task.status === column.status).length}</span>
           </div>
           <div className="space-y-3">
@@ -272,16 +278,16 @@ function Kanban({
                   >
                     {kanbanColumns.map((item) => (
                       <option key={item.status} value={item.status}>
-                        {item.label}
+                        {label("status", item.status)}
                       </option>
                     ))}
                   </select>
                   <Button size="sm" variant="secondary" onClick={() => onEdit(task)}>
-                    Editar
+                    {t("common.edit")}
                   </Button>
                 </div>
                 <Button className="mt-2 w-full" size="sm" variant="ghost" onClick={() => onDelete(task.id)}>
-                  Excluir
+                  {t("common.delete")}
                 </Button>
               </div>
             ))}
@@ -301,11 +307,12 @@ function Eisenhower({
   onEdit: (task: TaskDTO) => void;
   onPatch: (id: string, payload: Record<string, unknown>) => void;
 }) {
+  const { t } = useI18n();
   const quadrants = [
-    { key: "now", title: "Fazer agora", subtitle: "Urgente e importante", tone: "border-red-200 bg-red-50" },
-    { key: "plan", title: "Planejar", subtitle: "Importante e nao urgente", tone: "border-blue-200 bg-blue-50" },
-    { key: "delegate", title: "Delegar ou resolver rapido", subtitle: "Urgente e nao importante", tone: "border-amber-200 bg-amber-50" },
-    { key: "eliminate", title: "Eliminar", subtitle: "Nem urgente nem importante", tone: "border-slate-200 bg-slate-50" }
+    { key: "now", title: t("tasks.doNow"), subtitle: t("tasks.doNowSub"), tone: "border-red-200 bg-red-50" },
+    { key: "plan", title: t("tasks.plan"), subtitle: t("tasks.planSub"), tone: "border-blue-200 bg-blue-50" },
+    { key: "delegate", title: t("tasks.delegate"), subtitle: t("tasks.delegateSub"), tone: "border-amber-200 bg-amber-50" },
+    { key: "eliminate", title: t("tasks.eliminate"), subtitle: t("tasks.eliminateSub"), tone: "border-slate-200 bg-slate-50" }
   ] as const;
 
   return (
@@ -322,14 +329,14 @@ function Eisenhower({
                 <TaskSummary task={task} compact />
                 <div className="mt-3 flex gap-2">
                   <Button size="sm" variant="secondary" onClick={() => onEdit(task)}>
-                    Editar
+                    {t("common.edit")}
                   </Button>
                   <Button size="sm" onClick={() => onPatch(task.id, { status: "concluida" })}>
-                    Concluir
+                    {t("common.complete")}
                   </Button>
                 </div>
               </div>
-            )) : <p className="text-sm text-muted">Sem tarefas neste quadrante.</p>}
+            )) : <p className="text-sm text-muted">{t("tasks.emptyQuadrant")}</p>}
           </div>
         </div>
       ))}
@@ -338,6 +345,8 @@ function Eisenhower({
 }
 
 function TaskSummary({ task, compact = false }: { task: TaskDTO; compact?: boolean }) {
+  const { t, label } = useI18n();
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2">
@@ -347,10 +356,10 @@ function TaskSummary({ task, compact = false }: { task: TaskDTO; compact?: boole
       </div>
       {task.description && !compact ? <p className="mt-2 text-sm text-muted">{task.description}</p> : null}
       <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted">
-        {task.project ? <span>{task.project.name}</span> : <span>Sem projeto</span>}
-        {task.dueDate ? <span>Vence {task.dueDate.slice(0, 10)}</span> : <span>Sem data</span>}
+        {task.project ? <span>{task.project.name}</span> : <span>{t("common.noProject")}</span>}
+        {task.dueDate ? <span>{t("tasks.duePrefix")} {task.dueDate.slice(0, 10)}</span> : <span>{t("common.noDate")}</span>}
         {task.estimatedMinutes ? <span>{task.estimatedMinutes} min</span> : null}
-        <span>{task.energy}</span>
+        <span>{label("energy", task.energy)}</span>
       </div>
       {task.tagNames?.length ? (
         <div className="mt-2 flex flex-wrap gap-1">

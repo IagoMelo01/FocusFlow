@@ -1,16 +1,16 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email("Informe um e-mail valido."),
-  password: z.string().min(1, "Informe a senha.")
+  email: z.string().email("Enter a valid email."),
+  password: z.string().min(1, "Enter your password.")
 });
 
 export const registerSchema = loginSchema.extend({
-  name: z.string().trim().min(2, "Informe seu nome.").optional().or(z.literal(""))
+  name: z.string().trim().min(2, "Enter your name.").optional().or(z.literal(""))
 });
 
 export const taskSchema = z.object({
-  title: z.string().trim().min(2, "Informe um titulo."),
+  title: z.string().trim().min(2, "Enter a title."),
   description: z.string().optional().nullable(),
   status: z.enum(["inbox", "a_fazer", "fazendo", "aguardando", "concluida", "cancelada"]).default("a_fazer"),
   priority: z.enum(["baixa", "media", "alta", "urgente"]).default("media"),
@@ -28,7 +28,7 @@ export const taskPatchSchema = taskSchema.partial().extend({
 });
 
 export const projectSchema = z.object({
-  name: z.string().trim().min(2, "Informe um nome."),
+  name: z.string().trim().min(2, "Enter a name."),
   description: z.string().optional().nullable(),
   status: z.enum(["ativo", "pausado", "concluido", "cancelado"]).default("ativo"),
   startDate: z.string().optional().nullable(),
@@ -38,7 +38,7 @@ export const projectSchema = z.object({
 
 export const inboxSchema = z.object({
   type: z.enum(["tarefa", "ideia", "lembrete", "anotacao"]).default("tarefa"),
-  title: z.string().trim().min(2, "Informe um titulo."),
+  title: z.string().trim().min(2, "Enter a title."),
   content: z.string().optional().nullable()
 });
 
@@ -47,7 +47,7 @@ export const inboxProcessSchema = z.object({
 });
 
 export const habitSchema = z.object({
-  name: z.string().trim().min(2, "Informe um nome."),
+  name: z.string().trim().min(2, "Enter a name."),
   description: z.string().optional().nullable(),
   frequency: z.enum(["diaria", "semanal"]).default("diaria"),
   daysOfWeek: z.array(z.number().int().min(0).max(6)).default([1, 2, 3, 4, 5]),
@@ -61,7 +61,7 @@ export const habitLogSchema = z.object({
 });
 
 export const goalSchema = z.object({
-  title: z.string().trim().min(2, "Informe um titulo."),
+  title: z.string().trim().min(2, "Enter a title."),
   description: z.string().optional().nullable(),
   category: z.enum(["saude", "carreira", "estudos", "financeiro", "pessoal", "outro"]).default("outro"),
   startDate: z.string().optional().nullable(),
@@ -72,7 +72,7 @@ export const goalSchema = z.object({
 });
 
 export const noteSchema = z.object({
-  title: z.string().trim().min(2, "Informe um titulo."),
+  title: z.string().trim().min(2, "Enter a title."),
   content: z.string().default(""),
   tags: z.array(z.string()).default([])
 });
@@ -89,7 +89,7 @@ export const dailyPlanSchema = z.object({
   date: z.string(),
   reflection: z.string().optional().nullable(),
   taskIds: z.array(z.string()).default([]),
-  mainPriorityTaskIds: z.array(z.string()).max(3, "Escolha no maximo 3 prioridades.").default([])
+  mainPriorityTaskIds: z.array(z.string()).max(3, "Choose up to 3 priorities.").default([])
 });
 
 export const weeklyReviewSchema = z.object({

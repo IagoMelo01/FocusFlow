@@ -16,7 +16,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const data = projectSchema.partial().parse(await request.json());
     const existing = await prisma.project.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Projeto nao encontrado.", 404);
+    if (!existing) throw new ApiError("Project not found.", 404);
 
     const updateData: Prisma.ProjectUpdateInput = {};
     if (data.name !== undefined) updateData.name = data.name;
@@ -39,7 +39,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
     const { id } = await context.params;
     const existing = await prisma.project.findFirst({ where: { id, userId: user.id } });
 
-    if (!existing) throw new ApiError("Projeto nao encontrado.", 404);
+    if (!existing) throw new ApiError("Project not found.", 404);
 
     await prisma.project.delete({ where: { id } });
     return empty();
